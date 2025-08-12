@@ -98,6 +98,8 @@ public struct ChatCompletionParameters: Encodable {
       case contentArray([MessageContent])
 
       public enum MessageContent: Encodable, Equatable, Hashable {
+        case inputText(String)
+        case inputImage(ImageDetail)
         case text(String)
         case imageUrl(ImageDetail)
         case inputAudio(AudioDetail)
@@ -160,6 +162,14 @@ public struct ChatCompletionParameters: Encodable {
         public func encode(to encoder: Encoder) throws {
           var container = encoder.container(keyedBy: CodingKeys.self)
           switch self {
+          case .inputText(let text):
+            try container.encode("input_text", forKey: .type)
+            try container.encode(text, forKey: .text)
+
+          case .inputImage(let imageDetail):
+            try container.encode("input_image", forKey: .type)
+            try container.encode(imageDetail, forKey: .imageUrl)
+              
           case .text(let text):
             try container.encode("text", forKey: .type)
             try container.encode(text, forKey: .text)
@@ -176,6 +186,10 @@ public struct ChatCompletionParameters: Encodable {
 
         public func hash(into hasher: inout Hasher) {
           switch self {
+          case .inputText(let string):
+            hasher.combine(string)
+          case .inputImage(let imageDetail):
+            hasher.combine(imageDetail)
           case .text(let string):
             hasher.combine(string)
           case .imageUrl(let imageDetail):
